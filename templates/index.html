@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini - 5Pedia AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        geminiDark: '#131314',
+                        geminiSidebar: '#1e1f20',
+                        geminiInput: '#282a2c',
+                        geminiHover: '#333538',
+                        geminiText: '#e3e3e3',
+                        geminiBlue: '#8ab4f8'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-geminiDark text-geminiText h-screen flex overflow-hidden font-sans">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="bg-geminiSidebar w-64 flex flex-col justify-between p-4 transition-all duration-300 z-20 border-r border-gray-800">
+        <div>
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="toggleSidebar()" class="p-2 rounded-full hover:bg-geminiHover text-gray-400 hover:text-white transition">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <span class="text-xs font-semibold tracking-wider text-gray-400 uppercase">Menu</span>
+            </div>
+            
+            <button onclick="newChat()" class="flex items-center gap-3 bg-geminiInput hover:bg-geminiHover px-4 py-3 rounded-full w-full text-sm font-medium transition mb-6 shadow-sm border border-gray-700/50">
+                <i class="fa-solid fa-plus text-geminiBlue"></i>
+                <span>Chat Baru</span>
+            </button>
+
+            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Riwayat Percakapan</div>
+            <div id="chat-history" class="space-y-1 overflow-y-auto max-h-[50vh] pr-1">
+                {% for role, content in riwayat %}
+                    {% if role == 'User' %}
+                    <div class="text-sm truncate px-3 py-2 rounded-lg hover:bg-geminiHover cursor-pointer text-gray-300 transition">
+                        {{ content }}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="border-t border-gray-700/60 pt-4 text-xs text-gray-400 flex flex-col gap-2">
+            <div class="flex items-center gap-2 hover:text-white cursor-pointer p-1.5 rounded hover:bg-geminiHover"><i class="fa-solid fa-circle-question w-4"></i> Bantuan</div>
+            <div class="flex items-center gap-2 hover:text-white cursor-pointer p-1.5 rounded hover:bg-geminiHover"><i class="fa-solid fa-clock-rotate-left w-4"></i> Aktivitas</div>
+            <div class="flex items-center gap-2 hover:text-white cursor-pointer p-1.5 rounded hover:bg-geminiHover"><i class="fa-solid fa-gear w-4"></i> Setelan</div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col justify-between relative h-full bg-geminiDark">
+        <!-- Top Header -->
+        <header class="flex items-center justify-between px-6 py-4 border-b border-gray-800/80 bg-geminiDark z-10">
+            <div class="flex items-center gap-4">
+                <span class="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Gemini</span>
+                <span class="text-xs bg-geminiInput px-2.5 py-1 rounded-full text-gray-300 border border-gray-700">5Pedia AI v2.0</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold px-4 py-2 rounded-full shadow hover:opacity-90 transition">
+                    <i class="fa-solid fa-gem mr-1"></i> Coba Advanced
+                </button>
+                <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-sm shadow">U</div>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <div id="chat-container" class="flex-1 overflow-y-auto px-4 md:px-24 py-6 space-y-6">
+            <div class="welcome-box text-center my-auto py-12">
+                <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-red-400 bg-clip-text text-transparent mb-3">Halo, User</h1>
+                <p class="text-gray-400 text-lg">Mau eksplorasi pengetahuan atau buat program apa hari ini?</p>
+            </div>
+            
+            {% for role, content in riwayat %}
+            <div class="flex gap-4 max-w-3xl mx-auto {% if role == 'User' %}justify-end{% else %}justify-start{% endif %}">
+                {% if role == 'AI' %}
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white shadow">
+                    <i class="fa-solid fa-sparkles text-xs"></i>
+                </div>
+                {% endif %}
+                <div class="p-4 rounded-2xl max-w-[85%] leading-relaxed text-sm {% if role == 'User' %}bg-geminiInput text-white rounded-br-sm border border-gray-700/50{% else %}bg-geminiSidebar text-gray-200 rounded-bl-sm border border-gray-800{% endif %} whitespace-pre-wrap">{{ content }}</div>
+                {% if role == 'User' %}
+                <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0 text-white shadow font-bold text-xs">U</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Input Box Area -->
+        <div class="px-4 md:px-24 pb-6 bg-geminiDark">
+            <div class="max-w-3xl mx-auto bg-geminiInput rounded-3xl p-3 border border-gray-700 shadow-xl focus-within:border-gray-500 transition">
+                <textarea id="user-input" rows="1" placeholder="Masukkan pesan ke Gemini..." class="w-full bg-transparent text-gray-200 placeholder-gray-400 focus:outline-none resize-none px-3 py-1 max-h-32"></textarea>
+                
+                <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-700/50">
+                    <div class="flex items-center gap-1 text-gray-400">
+                        <button onclick="alert('Fitur unggah file/gambar aktif!')" class="p-2 hover:bg-geminiHover rounded-full hover:text-white transition" title="Tambah file"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="alert('Mikrofon suara aktif!')" class="p-2 hover:bg-geminiHover rounded-full hover:text-white transition" title="Gunakan suara"><i class="fa-solid fa-microphone"></i></button>
+                        <button onclick="alert('Ekstensi alat aktif!')" class="p-2 hover:bg-geminiHover rounded-full hover:text-white transition" title="Pilih ekstensi"><i class="fa-solid fa-shapes"></i></button>
+                    </div>
+                    <button onclick="sendMessage()" id="send-btn" class="bg-white text-black hover:bg-gray-200 p-2.5 rounded-full w-10 h-10 flex items-center justify-center transition shadow font-bold">
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-center text-xs text-gray-500 mt-2">Gemini dapat menampilkan informasi yang tidak akurat. Verifikasi respons penting secara mandiri.</div>
+        </div>
+    </main>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('w-64');
+            sidebar.classList.toggle('w-16');
+        }
+
+        function newChat() {
+            location.reload();
+        }
+
+        async function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const message = inputField.value.trim();
+            if (!message) return;
+
+            const welcome = document.querySelector('.welcome-box');
+            if (welcome) welcome.remove();
+
+            // Tampilkan bubble user
+            chatContainer.innerHTML += `
+                <div class="flex gap-4 max-w-3xl mx-auto justify-end">
+                    <div class="p-4 rounded-2xl max-w-[85%] leading-relaxed text-sm bg-geminiInput text-white rounded-br-sm border border-gray-700/50 whitespace-pre-wrap">${message}</div>
+                    <div class="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center flex-shrink-0 text-white shadow font-bold text-xs">U</div>
+                </div>
+            `;
+            inputField.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Tampilkan animasi loading AI
+            const loadingId = 'loading-' + Date.now();
+            chatContainer.innerHTML += `
+                <div id="${loadingId}" class="flex gap-4 max-w-3xl mx-auto justify-start">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white shadow">
+                        <i class="fa-solid fa-sparkles text-xs animate-spin"></i>
+                    </div>
+                    <div class="p-4 rounded-2xl max-w-[85%] leading-relaxed text-sm bg-geminiSidebar text-gray-400 rounded-bl-sm border border-gray-800">Sedang berpikir...</div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const data = await response.json();
+
+                document.getElementById(loadingId).remove();
+
+                // Tampilkan balasan AI
+                chatContainer.innerHTML += `
+                    <div class="flex gap-4 max-w-3xl mx-auto justify-start">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white shadow">
+                            <i class="fa-solid fa-sparkles text-xs"></i>
+                        </div>
+                        <div class="p-4 rounded-2xl max-w-[85%] leading-relaxed text-sm bg-geminiSidebar text-gray-200 rounded-bl-sm border border-gray-800 whitespace-pre-wrap">${data.response}</div>
+                    </div>
+                `;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                alert('Terjadi kesalahan koneksi.');
+            }
+        }
+
+        document.getElementById('user-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+  </html>
+  
